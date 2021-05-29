@@ -4,7 +4,7 @@ var settings = null;
 
 window.addEventListener("DOMSubtreeModified", function(event){
     if (settings !== null)
-        tweak(settings);
+        tweakNode(settings, event.target);
    });
 
 chrome.storage.local.get(options, function(results){
@@ -20,6 +20,23 @@ function getColor(tag) {
    return m ? [parseInt(m[1])/255.,parseInt(m[2])/255.,parseInt(m[3])/255.,parseInt(m[4])/255.] : null;
 }
 
+function tweakNode(settings,node) {
+  if (node.style) {
+    if(!node.href || !settings.ignorelinks) { 
+        var style = getComputedStyle(node);
+        var fore = getColor(style.color);
+        if (fore) {
+            if (Math.max(fore[0],fore[1],fore[2]) < settings.black/100.) {
+                node.style.color = "black";
+            }
+            else if (Math.min(fore[0],fore[1],fore[2]) > 1-settings.white/100.) {
+                node.style.color = "white";
+            }
+        }
+    }
+  }
+}
+
 function tweak(settings) {
     var nodes=document.body.getElementsByTagName('*');
     var pageBack=getColor(getComputedStyle(document.body).backgroundColor);
@@ -32,20 +49,7 @@ function tweak(settings) {
     }
        
     for (var i=0; i<nodes.length; i++) {
-      if (nodes[i].style) {
-        if(!nodes[i].href || !settings.ignorelinks) { 
-            var style = getComputedStyle(nodes[i]);
-            var fore = getColor(style.color);
-            if (fore) {
-                if (Math.max(fore[0],fore[1],fore[2]) < settings.black/100.) {
-                    nodes[i].style.color = "black";
-                }
-                else if (Math.min(fore[0],fore[1],fore[2]) > 1-settings.white/100.) {
-                    nodes[i].style.color = "white";
-                }
-            }
-        }
-      }
+      tweakNode(settings,nodes[i]);
     }
 }
 
