@@ -3,7 +3,11 @@
 <head><title>Blacker</title></head>
 </head>
 <body>
-Snap to black when each channel is below <input id="luminosity" type="number" value="35" min="0" max="90"/>%.<br/>
+Blacken range for text: <input id="black" type="number" min="0" max="100"/>%<br/>
+Whiten range for text: <input id="white" type="number" min="0" max="100"/>%<br/>
+Blacken range for background: <input id="backblack" type="number" min="0" max="100"/>%<br/>
+Whiten range for background: <input id="backwhite" type="number" min="0" max="100"/>%<br/>
+<input type="checkbox" id="ignorelinks" checked="true"/> ignore links<br/>
 <button id="save" disabled>Save</button> <button id="defaults">Defaults</button>
 <div id="message"></div>
 <script type="text/javascript" src="optiondata.js"></script>
