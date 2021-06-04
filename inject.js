@@ -15,9 +15,9 @@ chrome.storage.local.get(options, function(results){
 function getColor(tag) {
    m = tag.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
    if ( m )
-     return [parseInt(m[1])/255.,parseInt(m[2])/255.,parseInt(m[3])/255.,1.];
+     return [parseInt(m[1]),parseInt(m[2]),parseInt(m[3]),255];
    m = tag.match(/^rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
-   return m ? [parseInt(m[1])/255.,parseInt(m[2])/255.,parseInt(m[3])/255.,parseInt(m[4])/255.] : null;
+   return m ? [parseInt(m[1]),parseInt(m[2]),parseInt(m[3]),parseInt(m[4])] : null;
 }
 
 function tweakNode(settings,node) {
@@ -26,10 +26,12 @@ function tweakNode(settings,node) {
         var style = getComputedStyle(node);
         var fore = getColor(style.color);
         if (fore) {
-            if (Math.max(fore[0],fore[1],fore[2]) < settings.black/100.) {
+            var z = Math.max(fore[0],fore[1],fore[2]);
+            if (z > 0 && 100 * z < 255 * settings.black) {
                 node.style.color = "black";
             }
-            else if (Math.min(fore[0],fore[1],fore[2]) > 1-settings.white/100.) {
+            z = 255-Math.min(fore[0],fore[1],fore[2]);
+            if (z > 0 && 100 * z < 255 * settings.white) {
                 node.style.color = "white";
             }
         }
@@ -41,10 +43,13 @@ function tweak(settings) {
     var nodes=document.body.getElementsByTagName('*');
     var pageBack=getColor(getComputedStyle(document.body).backgroundColor);
     
-    if (Math.max(pageBack[0],pageBack[1],pageBack[2]) < settings.backblack/100.) {
+    var z = Math.max(pageBack[0],pageBack[1],pageBack[2]);
+    if (z > 0 && 100 * z < 255 * settings.backblack && pageBack[3]==255) {
         document.body.style.backgroundColor = "black";
     }
-    else if (Math.min(pageBack[0],pageBack[1],pageBack[2]) > 1-settings.backwhite/100.) {
+    
+    z = 255-Math.min(pageBack[0],pageBack[1],pageBack[2]);
+    if (z > 0 && 100 * z < 255 * settings.backwhite && pageBack[3]==255) {
         document.body.style.backgroundColor = "white";
     }
        
