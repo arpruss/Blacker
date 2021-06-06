@@ -20,18 +20,42 @@ function getColor(tag) {
    return m ? [parseInt(m[1]),parseInt(m[2]),parseInt(m[3]),parseInt(m[4])] : null;
 }
 
+function realBackgroundColor(elem,style=undefined) {
+   if (!elem || !elem.style) return [0,0,0,0];
+   if (style === undefined)
+      style = getComputedStyle(elem);
+   if (style.backgroundImage !== 'none')
+      return undefined;
+   var color = getColor(style.backgroundColor);
+   if (!color)
+      return undefined;
+   if (color[3])
+      return color;
+   else
+      return realBackgroundColor(elem.parentElement);
+}   
+
 function tweakNode(settings,node) {
   if (node.style) {
     if(!node.href || !settings.ignorelinks) { 
         var style = getComputedStyle(node);
         var fore = getColor(style.color);
+        var back = realBackgroundColor(node, style);
+        var backIntensity;
+        if (back === undefined || back[3] == 255) 
+            backIntensity = undefined;
+        else 
+            backIntensity = (back[0] + back[1] + back[2])/3;
+        
         if (fore) {
+            foreIntensity = (fore[0] + fore[1] + fore[2])/3;
+            
             var z = Math.max(fore[0],fore[1],fore[2]);
-            if (z > 0 && 100 * z < 255 * settings.black) {
+            if (z > 0 && 100 * z < 255 * settings.black && (backIntensity === undefined || foreIntensity < backIntensity) ) {
                 node.style.color = "black";
             }
             z = 255-Math.min(fore[0],fore[1],fore[2]);
-            if (z > 0 && 100 * z < 255 * settings.white) {
+            if (z > 0 && 100 * z < 255 * settings.white && (backIntensity === undefined || foreIntensity > backIntensity) ) {
                 node.style.color = "white";
             }
         }
