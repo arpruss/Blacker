@@ -54,7 +54,11 @@ function tweak(settings) {
     }
        
     for (var i=0; i<nodes.length; i++) {
-      tweakNode(settings,nodes[i]);
+      try {
+        tweakNode(settings,nodes[i]);
+      }
+      catch(err) {
+      }
     }
 }
 
