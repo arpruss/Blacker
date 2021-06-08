@@ -3,8 +3,9 @@
 var settings = null;
 
 window.addEventListener("DOMSubtreeModified", function(event){
-    if (settings !== null)
-        tweakNode(settings, event.target);
+    if (settings !== null) {
+        recursiveTweak(settings, event.target);
+    }
    });
 
 chrome.storage.local.get(options, function(results){
@@ -21,11 +22,12 @@ function getColor(tag) {
 }
 
 function realBackgroundColor(elem,style=undefined) {
-   if (!elem || !elem.style) return [0,0,0,0];
+   if (!elem || !elem.style) return [255,255,255,255];
    if (style === undefined)
       style = getComputedStyle(elem);
-   if (style.backgroundImage !== 'none')
+   if (style.backgroundImage !== 'none') {
       return undefined;
+   }
    var color = getColor(style.backgroundColor);
    if (!color)
       return undefined;
@@ -35,14 +37,27 @@ function realBackgroundColor(elem,style=undefined) {
       return realBackgroundColor(elem.parentElement);
 }   
 
+function recursiveTweak(settings,node) {
+    try {
+        tweakNode(settings, node);
+    }
+    catch(err) {
+    }
+    
+    if (node.childNodes) {
+        var children = Array.from(node.childNodes);
+        for (var i=0;i<children.length;i++)
+            recursiveTweak(settings, children[i]);
+    }
+}
+
 function tweakNode(settings,node) {
-  if (node.style) {
     if(!node.href || !settings.ignorelinks) { 
         var style = getComputedStyle(node);
         var fore = getColor(style.color);
         var back = realBackgroundColor(node, style);
         var backIntensity;
-        if (back === undefined || back[3] == 255) 
+        if (back === undefined || back[3] == 0) 
             backIntensity = undefined;
         else 
             backIntensity = (back[0] + back[1] + back[2])/3;
@@ -51,6 +66,7 @@ function tweakNode(settings,node) {
             foreIntensity = (fore[0] + fore[1] + fore[2])/3;
             
             var z = Math.max(fore[0],fore[1],fore[2]);
+
             if (z > 0 && 100 * z < 255 * settings.black && (backIntensity === undefined || foreIntensity < backIntensity) ) {
                 node.style.color = "black";
             }
@@ -60,7 +76,6 @@ function tweakNode(settings,node) {
             }
         }
     }
-  }
 }
 
 function tweak(settings) {
