@@ -2,12 +2,26 @@
 
 var settings = null;
 
+/*
 window.addEventListener("DOMSubtreeModified", function(event){
+    if (settings !== null) {
+        //recursiveTweak(settings, event.target);
+        //event.target.style.color = "blue";
+    }
+   }); */
+   
+window.addEventListener("DOMNodeInserted", function(event){
     if (settings !== null) {
         recursiveTweak(settings, event.target);
     }
    });
-
+   
+window.addEventListener("DOMAttrModified", function(event){
+    if (settings !== null) {
+        tweak(settings, event.target);
+    }
+   });
+   
 chrome.storage.local.get(options, function(results){
 	settings = results;
     tweak(settings);
@@ -22,19 +36,25 @@ function getColor(tag) {
 }
 
 function realBackgroundColor(elem,style=undefined) {
-   if (!elem || !elem.style) return [255,255,255,255];
-   if (style === undefined)
+   if (!elem || !elem.style) {
+       return [255,255,255,255];
+   }
+   if (style === undefined) {
       style = getComputedStyle(elem);
+   }
    if (style.backgroundImage !== 'none') {
       return undefined;
    }
    var color = getColor(style.backgroundColor);
-   if (!color)
+   if (!color) {
       return undefined;
-   if (color[3])
+   }
+   if (color[3]) {
       return color;
-   else
+   }
+   else {
       return realBackgroundColor(elem.parentElement);
+   }
 }   
 
 function recursiveTweak(settings,node) {
