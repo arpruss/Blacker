@@ -30,14 +30,14 @@ chrome.storage.local.get(options, function(results){
 function getColor(tag) {
    m = tag.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
    if ( m )
-     return [parseInt(m[1]),parseInt(m[2]),parseInt(m[3]),255];
-   m = tag.match(/^rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
-   return m ? [parseInt(m[1]),parseInt(m[2]),parseInt(m[3]),parseInt(m[4])] : null;
+     return [parseInt(m[1]),parseInt(m[2]),parseInt(m[3]),1.0];
+   m = tag.match(/^rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([.0-9]+)\s*\)$/i);
+   return m ? [parseInt(m[1]),parseInt(m[2]),parseInt(m[3]),parseFloat(m[4])] : null;
 }
 
 function realBackgroundColor(elem,style=undefined) {
    if (!elem || !elem.style) {
-       return [255,255,255,255];
+       return [255,255,255,1.0];
    }
    if (style === undefined) {
       style = getComputedStyle(elem);
@@ -49,11 +49,19 @@ function realBackgroundColor(elem,style=undefined) {
    if (!color) {
       return undefined;
    }
-   if (color[3]) {
-      return color;
+   if (color[3]==1) {
+/*        if (color[0] == 249 && color[1] == 237 && color[2] == 190) {
+            console.log(style);
+            console.log(elem.style);
+            return [0,0,0,1.0];
+        } */
+        return color;
    }
    else {
-      return realBackgroundColor(elem.parentElement);
+      var under = realBackgroundColor(elem.parentElement);
+      if (under === undefined)
+          return undefined;
+      return [color[0]*color[3]+under[0]*(1-color[3]),color[1]*color[3]+under[1]*(1-color[3]),color[2]*color[3]+under[2]*(1-color[3]),Math.max(color[3],under[3])]
    }
 }   
 
@@ -103,12 +111,12 @@ function tweak(settings) {
     var pageBack=getColor(getComputedStyle(document.body).backgroundColor);
     
     var z = Math.max(pageBack[0],pageBack[1],pageBack[2]);
-    if (z > 0 && 100 * z < 255 * settings.backblack && pageBack[3]==255) {
+    if (z > 0 && 100 * z < 255 * settings.backblack && pageBack[3]==1) {
         document.body.style.backgroundColor = "black";
     }
     
     z = 255-Math.min(pageBack[0],pageBack[1],pageBack[2]);
-    if (z > 0 && 100 * z < 255 * settings.backwhite && pageBack[3]==255) {
+    if (z > 0 && 100 * z < 255 * settings.backwhite && pageBack[3]==1) {
         document.body.style.backgroundColor = "white";
     }
        
