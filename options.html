@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head><title>Blacker</title></head>
+<head><title>Blacker Text</title></head>
 </head>
 <body>
 Blacken range for text: <input id="black" type="number" min="0" max="100"/>%<br/>
 Whiten range for text: <input id="white" type="number" min="0" max="100"/>%<br/>
 Blacken range for background: <input id="backblack" type="number" min="0" max="100"/>%<br/>
 Whiten range for background: <input id="backwhite" type="number" min="0" max="100"/>%<br/>
+<p>The percentages above specify how close to full white or full black you need to be for the Blacker Text
+extension to snap the color to full white or full black. If you set the percentages to 0, then nothing will
+happen. The bigger the percentages, the more often colors will snap to full black or full white.</p>
 <input type="checkbox" id="ignorelinks" checked="true"/> ignore links<br/>
 <button id="save" disabled>Save</button> <button id="defaults">Defaults</button>
 <div id="message"></div>

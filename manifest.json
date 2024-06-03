@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Blacker Text",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "Make near-black text black.",
   "options_ui": {
     "page": "options.html",
